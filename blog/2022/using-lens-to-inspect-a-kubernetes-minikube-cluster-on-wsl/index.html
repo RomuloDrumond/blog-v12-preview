@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Using Lens to inspect a Kubernetes minikube cluster on WSL | Romulo Drumond </title> <meta name="author" content="Romulo B. P. Drumond"> <meta name="description" content="Learn how to use Lens to see K8s clusters on WSL"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+  :root {
+    --max-content-width: 800px;
+  }
+</style> <link rel="stylesheet" href="/blog-v12-preview/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tocbot@4.36.4/dist/tocbot.css" integrity="sha256-zTN0r+0OKaIv2xqeNNIYxNk0pWJ6+IqPGc1iDgVzWF0=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/blog-v12-preview/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/blog-v12-preview/assets/img/favicon-32x32.png?v=593b092ea8799b388611c7f8d0a2a081"> <link rel="apple-touch-icon" href="/blog-v12-preview/assets/img/favicon-32x32.png?v=593b092ea8799b388611c7f8d0a2a081"> <link rel="stylesheet" href="/blog-v12-preview/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1"> <link rel="canonical" href="https://romulodrumond.com/blog-v12-preview/blog/2022/using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/"> <script src="/blog-v12-preview/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script> <link defer rel="stylesheet" href="/blog-v12-preview/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> <link rel="stylesheet" href="/blog-v12-preview/assets/css/custom.css?v=1c79551f53a029679b2bf569c2d9f3aa"> <meta name="robots" content="noindex, nofollow">
+</head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/blog-v12-preview/"> Romulo Drumond </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/blog-v12-preview/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog-v12-preview/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/blog-v12-preview/publications/">publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/blog-v12-preview/repositories/">repositories </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="row"> <div class="col-sm-3"> <nav id="toc-sidebar" class="sticky-top toc toc-sidebar" aria-label="Table of contents" data-toc-collapse="expanded" data-toc-collapse-depth=""></nav> </div> <div class="col-sm-9"> <div class="post"> <header class="post-header"> <h1 class="post-title">Using Lens to inspect a Kubernetes minikube cluster on WSL</h1> <p class="post-meta"> Created on October 31, 2022 </p> <p class="post-tags"> <a href="/blog-v12-preview/blog/2022"> <i class="fa-solid fa-calendar fa-sm"></i> 2022 </a>   ·   <a href="/blog-v12-preview/blog/tag/kubernetes"> <i class="fa-solid fa-hashtag fa-sm"></i> Kubernetes</a>   <a href="/blog-v12-preview/blog/tag/wsl"> <i class="fa-solid fa-hashtag fa-sm"></i> WSL</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <h2 id="1-a-bit-of-context">1. A bit of context</h2> <h3 id="11-lens">1.1 Lens</h3> <p><a href="https://k8slens.dev/" rel="external nofollow noopener" target="_blank">Lens</a> is like a <a href="https://kubernetes.io/" rel="external nofollow noopener" target="_blank">Kubernetes (K8s)</a> IDE, with the app you can monitor and interact with K8s clusters using a graphical user interface (GUI). See Video 1 for an intro on that desktop app.</p> <div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" width="100%" height="100%" src="https://www.youtube.com/embed/eeDwdVXattc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe> </div> <p style="text-align:center; margin-top:0.15cm;"> Video 1 - Introduction to Lens. </p> <p>In the context of this tutorial, we installed Lens on Windows 11.</p> <h3 id="12-minikube">1.2 Minikube</h3> <p><a href="https://minikube.sigs.k8s.io/docs/start/" rel="external nofollow noopener" target="_blank">Minikube</a> is an easy way to have a local K8s cluster running on your computer, all you need is Docker container or some similar tool, and <a href="https://kubernetes.io/docs/reference/kubectl/kubectl/" rel="external nofollow noopener" target="_blank">kubectl</a>. For a quick intro to this tool check Video 2.</p> <div style="position:relative;padding-bottom:56.25%;"> <iframe style="width:100%;height:100%;position:absolute;left:0px;top:0px;" width="100%" height="100%" src="https://www.youtube.com/embed/E2pP1MOfo3g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe> </div> <p style="text-align:center; margin-top:0.15cm;"> Video 2 - Minikube and Kubectl explained. </p> <p>Note: <a href="https://www.youtube.com/c/TechWorldwithNana" rel="external nofollow noopener" target="_blank">TechWorld with Nana</a> is an amazing channel! Check it out if you are interested in DevOps.</p> <p>In the context of this tutorial we installed minikube on WSL, so we followed the Linux installation guide from the <a href="https://minikube.sigs.k8s.io/docs/start/" rel="external nofollow noopener" target="_blank">minikube website</a>.</p> <p>After running the <code class="language-plaintext highlighter-rouge">minikube start</code> command you can check if you are using Docker, the containers that represent your K8s with:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ docker ps
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED       STATUS         PORTS                                                                                                                                  NAMES
+1536bce200c   gcr.io/k8s-minikube/kicbase:v0.0.33   <span class="s2">"/usr/local/bin/entr…"</span>   2 weeks ago   Up 2 minutes   127.0.0.1:49157-&gt;22/tcp, 127.0.0.1:49156-&gt;2376/tcp, 127.0.0.1:49155-&gt;5000/tcp, 127.0.0.1:49154-&gt;8443/tcp, 127.0.0.1:49153-&gt;32443/tcp   minikube
+</code></pre></div></div> <p>And with kubectl you can check the nodes too:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   20d   v1.24.3
+</code></pre></div></div> <p>You may want to change your kubectl context if you have multiple clusters configured, for example:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ kubectl config get-contexts <span class="c"># get available contexts</span>
+CURRENT   NAME                         CLUSTER                      AUTHINFO                                                       NAMESPACE
+          minikube                     minikube                     minikube                                                       default
+<span class="k">*</span>         other-cluster                other-cluster                clusterUser_k8s_other-cluster               
+➜  ~ kubectl config use-context minikube <span class="c"># in this example, changes the context from 'other-cluster' to 'minikube'</span>
+Switched to context <span class="s2">"minikube"</span><span class="nb">.</span>
+</code></pre></div></div> <p>Also, you may simulate a multi-node K8s instance with minikube if you want to test a multi-node deployment (when we talk about databases, it is a good practice to have at least 3 instances in different nodes for robustness to node failure). You can create a new multi-node cluster/profile by running:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>minikube start <span class="nt">--nodes</span> &lt;number-of-nodes&gt; <span class="nt">--profile</span> &lt;name-of-new-profile&gt;
+</code></pre></div></div> <p style="margin-bottom:0;"> <details><summary>(click to expand) <strong>Example run</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">➜  ~ minikube start <span class="nt">--nodes</span> 3 <span class="nt">--profile</span> multinode3
+😄  <span class="o">[</span>multinode3] minikube v1.27.0 on Ubuntu 20.04 <span class="o">(</span>amd64<span class="o">)</span>
+❗  Kubernetes 1.25.0 has a known issue with resolv.conf. minikube is using a workaround that should work <span class="k">for </span>most use cases.
+❗  For more information, see: https://github.com/kubernetes/kubernetes/issues/112135
+✨  Automatically selected the docker driver
+📌  Using Docker driver with root privileges
+👍  Starting control plane node multinode3 <span class="k">in </span>cluster multinode3
+🚜  Pulling base image ...
+🔥  Creating docker container <span class="o">(</span><span class="nv">CPUs</span><span class="o">=</span>2, <span class="nv">Memory</span><span class="o">=</span>2200MB<span class="o">)</span> ...
+🐳  Preparing Kubernetes v1.25.0 on Docker 20.10.17 ...
+    ▪ Generating certificates and keys ...
+    ▪ Booting up control plane ...
+    ▪ Configuring RBAC rules ...
+🔗  Configuring CNI <span class="o">(</span>Container Networking Interface<span class="o">)</span> ...
+🔎  Verifying Kubernetes components...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Enabled addons: storage-provisioner, default-storageclass
+
+👍  Starting worker node multinode3-m02 <span class="k">in </span>cluster multinode3
+🚜  Pulling base image ...
+🔥  Creating docker container <span class="o">(</span><span class="nv">CPUs</span><span class="o">=</span>2, <span class="nv">Memory</span><span class="o">=</span>2200MB<span class="o">)</span> ...
+🌐  Found network options:
+    ▪ <span class="nv">NO_PROXY</span><span class="o">=</span>192.153.27.2
+🐳  Preparing Kubernetes v1.25.0 on Docker 20.10.17 ...
+    ▪ <span class="nb">env </span><span class="nv">NO_PROXY</span><span class="o">=</span>192.153.27.2
+🔎  Verifying Kubernetes components...
+
+👍  Starting worker node multinode3-m03 <span class="k">in </span>cluster multinode3
+🚜  Pulling base image ...
+🔥  Creating docker container <span class="o">(</span><span class="nv">CPUs</span><span class="o">=</span>2, <span class="nv">Memory</span><span class="o">=</span>2200MB<span class="o">)</span> ...
+🌐  Found network options:
+    ▪ <span class="nv">NO_PROXY</span><span class="o">=</span>192.153.27.2,192.153.27.3
+🐳  Preparing Kubernetes v1.25.0 on Docker 20.10.17 ...
+    ▪ <span class="nb">env </span><span class="nv">NO_PROXY</span><span class="o">=</span>192.153.27.2
+    ▪ <span class="nb">env </span><span class="nv">NO_PROXY</span><span class="o">=</span>192.153.27.2,192.168.27.3
+🔎  Verifying Kubernetes components...
+🏄  Done! kubectl is now configured to use <span class="s2">"multinode3"</span> cluster and <span class="s2">"default"</span> namespace by default</code></pre></figure> </details> </p> <p style="margin-bottom:0;"> You may check your multiple profiles with <code>minikube profile list</code>, change profile with <code>minikube profile &lt;profile-name&gt;</code>, and run specific actions to profiles by adding <code>-p &lt;profile-name&gt;</code> to the end of the command. <details><summary>(click to expand) <strong>Example run</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">➜  ~ minikube profile list                     
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+|  Profile   | VM Driver | Runtime |      IP      | Port | Version | Status  | Nodes | Active |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+| minikube   | docker    | docker  | 192.153.49.2 | 8443 | v1.24.3 | Running |     1 | <span class="k">*</span>      |
+| multinode3 | docker    | docker  | 192.153.85.2 | 8443 | v1.25.0 | Running |     3 |        |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+➜  ~ minikube stop <span class="nt">-p</span> minikube <span class="c"># stoping the cluster of the 'minikube' profile</span>
+✋  Stopping node <span class="s2">"minikube"</span>  ...
+🛑  Powering off <span class="s2">"minikube"</span> via SSH ...
+🛑  1 node stopped.
+➜  ~ minikube profile multinode3 <span class="c"># changing current profile</span>
+✅  minikube profile was successfully <span class="nb">set </span>to multinode3
+➜  ~ minikube profile list      
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+|  Profile   | VM Driver | Runtime |      IP      | Port | Version | Status  | Nodes | Active |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+| minikube   | docker    | docker  | 192.153.49.2 | 8443 | v1.24.3 | Stopped |     1 |        |
+| multinode3 | docker    | docker  | 192.153.85.2 | 8443 | v1.25.0 | Running |     3 | <span class="k">*</span>      |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|</code></pre></figure> </details> </p> <p style="margin-bottom:0;"> And you may see your <code>kubectl</code> available contexts with the command <code>kubectl config get-contexts</code> and take a look at the new nodes with <code>kubectl get nodes</code>. <details><summary>(click to expand) <strong>Example run</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">➜  ~ kubectl config get-contexts 
+CURRENT   NAME                         CLUSTER                      AUTHINFO                                                       NAMESPACE
+          minikube                     minikube                     minikube                                                       default
+<span class="k">*</span>         multinode3                   multinode3                   multinode3                                                     default
+          other-cluster                other-cluster                clusterUser_k8s_other-cluster
+➜  ~ kubectl get nodes
+NAME             STATUS   ROLES           AGE     VERSION
+multinode3       Ready    control-plane   6m27s   v1.25.0
+multinode3-m02   Ready    &lt;none&gt;          4m30s   v1.25.0
+multinode3-m03   Ready    &lt;none&gt;          3m53s   v1.25.0</code></pre></figure> </details> </p> <p>Note: Although is possible to run this multi-node test locally it is difficult to work on a modest machine now that we have 3 containers each expecting 2 CPUs and 2 Gb of RAM <img class="emoji" title=":disappointed:" alt=":disappointed:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f61e.png" height="20" width="20">.</p> <h3 id="13-wsl">1.3 WSL</h3> <p>I’ve made a quick intro about it on an <a href="/blog-v12-preview/blog/2022/setting-up-docker-on-wsl2/">older post</a>, but you can go straight to this quick <a href="https://www.youtube.com/watch?v=MrZolfGm8Zk&amp;ab_channel=MicrosoftDeveloper" rel="external nofollow noopener" target="_blank">video intro</a>. Basically, WSL is a tool to have a Linux developer environment on your Windows PC.</p> <hr> <h2 id="2-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl">2. Using Lens to inspect a Kubernetes minikube cluster on WSL</h2> <p><em>Wait! Couldn’t I just use <code class="language-plaintext highlighter-rouge">minikube dashboard</code> instead?</em></p> <p>Yes, minikube comes with a dashboard (see Figure 1) so you can look up your local K8s cluster and interact with it, but <strong>the idea of using Lens is to have the same tool for interacting with the local cluster and with a production cluster in a cloud provider</strong>.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-dashboard-print-480.webp 480w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-dashboard-print-800.webp 800w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-dashboard-print-1400.webp 1400w" type="image/webp" sizes="95vw"></source> <img src="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-dashboard-print.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> <figcaption class="caption">Figure 1 - Minikube's dashboard example.</figcaption> </figure> <p style="margin-bottom:0;"> First, check if your cluster is running with <code>minikube status</code> command, if no cluster is running you can spin one up with the <code>minikube start</code> command. <details><summary>(click to expand) <strong>Example run</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">➜  ~ minikube status
+multinode3
+<span class="nb">type</span>: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+multinode3-m02
+<span class="nb">type</span>: Worker
+host: Running
+kubelet: Running
+
+multinode3-m03
+<span class="nb">type</span>: Worker
+host: Running
+kubelet: Running</code></pre></figure> </details> </p> <p>If you still don’t have it, download and install <a href="https://k8slens.dev/" rel="external nofollow noopener" target="_blank">Lens</a>. Start it and go the the “Cluster” tab as shown by the left arrow in Figure 2 and then click on the plus sign pointed by the right arrow. Figure 3 shows the possible ways to add clusters to Lens.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/lens-initial-screen-for-setup-480.webp 480w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/lens-initial-screen-for-setup-800.webp 800w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/lens-initial-screen-for-setup-1400.webp 1400w" type="image/webp" sizes="95vw"></source> <img src="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/lens-initial-screen-for-setup.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> <figcaption class="caption">Figure 2 - Cluster tab on Lens.</figcaption> </figure> <div style="text-align: center"> <figure> <picture> <source class="responsive-img-srcset" srcset="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/sync-kube-config-480.webp 480w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/sync-kube-config-800.webp 800w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/sync-kube-config-1400.webp 1400w" type="image/webp" sizes="95vw"></source> <img src="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/sync-kube-config.png" class="img-fluid rounded z-depth-1" width="30%" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> <figcaption class="caption">Figure 3 - Lens options for adding clusters.</figcaption> </figure> </div> <p>Here comes the problem, you may want to sync the kubeconfig file that you can find in a path like this: <code class="language-plaintext highlighter-rouge">\\wsl.localhost\Ubuntu-20.04\home\romulo\.kube\config</code> when using the first option shown in Figure 3. You shall end up with a list of clusters similar to Figure 4, where in my case I can easily access the second one, a K8s cluster on Azure. The problem lies when trying to access the minikube one, the error in Figure 5 is raised.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/available-clusters-after-sync-kubeconfig-file-480.webp 480w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/available-clusters-after-sync-kubeconfig-file-800.webp 800w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/available-clusters-after-sync-kubeconfig-file-1400.webp 1400w" type="image/webp" sizes="95vw"></source> <img src="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/available-clusters-after-sync-kubeconfig-file.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> <figcaption class="caption">Figure 4 - Lens list of available clusters after syncing kubeconfig file.</figcaption> </figure> <figure> <picture> <source class="responsive-img-srcset" srcset="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-connection-error-480.webp 480w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-connection-error-800.webp 800w, /blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-connection-error-1400.webp 1400w" type="image/webp" sizes="95vw"></source> <img src="/blog-v12-preview/assets/img/posts/2022-10-31-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/minikube-connection-error.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> <figcaption class="caption">Figure 5 - Error while trying to access a minikube cluster with Lens.</figcaption> </figure> <details><summary>(click to expand) <strong>Full error</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">F1027 17:47:49.413105 54440 main.go:74] failed to initialize kubeconfiginvalid configuration: <span class="o">[</span>unable to <span class="nb">read </span>client-cert <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\p</span>rofiles<span class="se">\m</span>ultinode3<span class="se">\c</span>lient.crt <span class="k">for </span>multinode3 due to open <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\p</span>rofiles<span class="se">\m</span>ultinode3<span class="se">\c</span>lient.crt: The system cannot find the path specified., unable to <span class="nb">read </span>client-key <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\p</span>rofiles<span class="se">\m</span>ultinode3<span class="se">\c</span>lient.key <span class="k">for </span>multinode3 due to open <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\p</span>rofiles<span class="se">\m</span>ultinode3<span class="se">\c</span>lient.key: The system cannot find the path specified., unable to <span class="nb">read </span>certificate-authority <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\c</span>a.crt <span class="k">for </span>multinode3 due to open <span class="se">\\</span>wsl.localhost<span class="se">\U</span>buntu-20.04<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>kube<span class="se">\h</span>ome<span class="se">\r</span>omulo<span class="se">\.</span>minikube<span class="se">\c</span>a.crt: The system cannot find the path specified.]
+goroutine 1 <span class="o">[</span>running]:
+k8s.io/klog/v2.stacks<span class="o">(</span>0x1<span class="o">)</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:1140 +0x8a
+k8s.io/klog/v2.<span class="o">(</span><span class="k">*</span>loggingT<span class="o">)</span>.output<span class="o">(</span>0x22a5140, 0x3, 0x0, 0xc0001810a0, 0x1, <span class="o">{</span>0x1a7c0b5, 0x20<span class="o">}</span>, 0x22a6020, 0x0<span class="o">)</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:1088 +0x66f
+k8s.io/klog/v2.<span class="o">(</span><span class="k">*</span>loggingT<span class="o">)</span>.printDepth<span class="o">(</span>0xc000720800, 0x6018, 0x0, <span class="o">{</span>0x0, 0x0<span class="o">}</span>, 0x1, <span class="o">{</span>0xc000386100, 0x2, 0x2<span class="o">})</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:735 +0x1ae
+k8s.io/klog/v2.<span class="o">(</span><span class="k">*</span>loggingT<span class="o">)</span>.print<span class="o">(</span>...<span class="o">)</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:717
+k8s.io/klog/v2.Fatal<span class="o">(</span>...<span class="o">)</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:1622
+main.main<span class="o">()</span>
+D:/a/lens-k8s-proxy/lens-k8s-proxy/main.go:74 +0x6a6
+
+goroutine 6 <span class="o">[</span>chan receive]:
+k8s.io/klog/v2.<span class="o">(</span><span class="k">*</span>loggingT<span class="o">)</span>.flushDaemon<span class="o">(</span>0x0<span class="o">)</span>
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:1283 +0x6a
+created by k8s.io/klog/v2.init.0
+C:/Users/runneradmin/go/pkg/mod/k8s.io/klog/v2@v2.40.1/klog.go:420 +0xfb
+
+goroutine 10 <span class="o">[</span>syscall]:
+os/signal.signal_recv<span class="o">()</span>
+C:/hostedtoolcache/windows/go/1.17.8/x64/src/runtime/sigqueue.go:169 +0x98
+os/signal.loop<span class="o">()</span>
+C:/hostedtoolcache/windows/go/1.17.8/x64/src/os/signal/signal_unix.go:24 +0x19
+created by os/signal.Notify.func1.1
+C:/hostedtoolcache/windows/go/1.17.8/x64/src/os/signal/signal.go:151 +0x2c
+
+proxy exited with code: 255
+
+Failed to start connection: Error: failed to retrieve port from stream</code></pre></figure> </details> <p><br></p> <p>From the error log we can easily see that part of the path is being repeated, e.g. <code class="language-plaintext highlighter-rouge">\home\romulo</code> in <code class="language-plaintext highlighter-rouge">\\wsl.localhost\Ubuntu-20.04\home\romulo\.kube\home\romulo\.minikube\profiles\multinode3\client.crt</code>.</p> <p>So, the best approach to deal with this mismatch I’ve found is to make a copy of the <code class="language-plaintext highlighter-rouge">~/.kube/config</code> file to, for example, <code class="language-plaintext highlighter-rouge">~/kubeconfig</code> and delete on this new file all instances of <code class="language-plaintext highlighter-rouge">/home/&lt;username&gt;/</code> (in my case <code class="language-plaintext highlighter-rouge">/home/romulo/</code>). This way you don’t mess around with the config file necessary for <code class="language-plaintext highlighter-rouge">minikube</code> and <code class="language-plaintext highlighter-rouge">kubectl</code> to work properly while you use Lens.</p> <p>After syncing this new <code class="language-plaintext highlighter-rouge">~/kubeconfig</code> file with Lens, you will still need to update it if your <code class="language-plaintext highlighter-rouge">~/.kube/config</code> changes (possibly by adding/deleting clusters connections). Nevertheless minikube has an annoying behavior: it changes the server port every time the cluster restarts. For example, you may find at the first minikube start a line in the kubeconfig file with <code class="language-plaintext highlighter-rouge">server: https://127.0.0.1:49174</code> and then, after a cluster restart you may see <code class="language-plaintext highlighter-rouge">server: https://127.0.0.1:49189</code>. Fortunately, if you are using Docker or Podman to virtualize the cluster, you can set up the port forwarding on the creation of the minikube cluster/profile. You shall run:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>minikube delete <span class="c"># to delete old docker containers for the active profile</span>
+minikube start <span class="nt">--ports</span><span class="o">=</span>127.0.0.1:55555:8443 <span class="c"># forwarding &lt;server-port-you-want-fixed&gt;:&lt;K8s-default-apiserver-port&gt;</span>
+</code></pre></div></div> <details><summary>(click to expand) <strong>Example run:</strong></summary> <figure class="highlight"><pre><code class="language-bash" data-lang="bash">➜  ~ minikube delete <span class="c"># to delete old docker containers for the active profile</span>
+🔥  Deleting <span class="s2">"minikube"</span> <span class="k">in </span>docker ...
+🔥  Deleting container <span class="s2">"minikube"</span> ...
+🔥  Removing /home/romulo/.minikube/machines/minikube ...
+💀  Removed all traces of the <span class="s2">"minikube"</span> cluster.
+➜  ~ minikube start <span class="nt">--ports</span><span class="o">=</span>127.0.0.1:55555:8443 <span class="c"># forwarding &lt;server-port-you-want-fixed&gt;:&lt;K8s-default-apiserver-port&gt;</span>
+😄  minikube v1.27.0 on Ubuntu 20.04 <span class="o">(</span>amd64<span class="o">)</span>
+❗  Kubernetes 1.25.0 has a known issue with resolv.conf. minikube is using a workaround that should work <span class="k">for </span>most use cases.
+❗  For more information, see: https://github.com/kubernetes/kubernetes/issues/112135
+✨  Automatically selected the docker driver
+📌  Using Docker driver with root privileges
+👍  Starting control plane node minikube <span class="k">in </span>cluster minikube
+🚜  Pulling base image ...
+🔥  Creating docker container <span class="o">(</span><span class="nv">CPUs</span><span class="o">=</span>2, <span class="nv">Memory</span><span class="o">=</span>2200MB<span class="o">)</span> ...
+🐳  Preparing Kubernetes v1.25.0 on Docker 20.10.17 ...
+    ▪ Generating certificates and keys ...
+    ▪ Booting up control plane ...
+    ▪ Configuring RBAC rules ...
+🔎  Verifying Kubernetes components...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Enabled addons: storage-provisioner, default-storageclass
+🏄  Done! kubectl is now configured to use <span class="s2">"minikube"</span> cluster and <span class="s2">"default"</span> namespace by default</code></pre></figure> </details> <p>Note: The <code class="language-plaintext highlighter-rouge">55555</code> is an arbitrary port number I’ve chosen (it’s five fives <img class="emoji" title=":smile:" alt=":smile:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f604.png" height="20" width="20">) and <code class="language-plaintext highlighter-rouge">8443</code> is the default API server port for K8s, if you change it you shall change it here too.</p> <p>Unfortunately, this port fixing trick doesn’t work with multi-node minikube cluster (see <a href="https://github.com/kubernetes/minikube/pull/9404#issuecomment-1192735773" rel="external nofollow noopener" target="_blank">PR#9404</a>). If you want to see for yourself try to create a new cluster with <code class="language-plaintext highlighter-rouge">minikube start --nodes 3 --profile multinode3 --ports=127.0.0.1:55555:8443</code> or add a new node to the single node cluster created before with <code class="language-plaintext highlighter-rouge">minikube node add</code>. Both of them raise an error due to trying to use the same port forwarding (<code class="language-plaintext highlighter-rouge">127.0.0.1:55555:8443</code>) for the worker nodes too. <strong>For the case of a multi-node minikube cluster you will need to keep updating the server port every time you want to use Lens and the cluster has been restarted</strong> <img class="emoji" title=":disappointed_relieved:" alt=":disappointed_relieved:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f625.png" height="20" width="20">.</p> <p>I personally maintain a single node profile named <em>minikube</em> with the port forwarding trick and a multi-node one named <em>multinode3</em>. When I want to use Lens with the multi-node one I manually update my <code class="language-plaintext highlighter-rouge">~/kubeconfig</code> file with the new random port.</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ minikube profile list
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+|  Profile   | VM Driver | Runtime |      IP      | Port | Version | Status  | Nodes | Active |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+| minikube   | docker    | docker  | 192.153.49.2 | 8443 | v1.25.0 | Stopped |     1 | <span class="k">*</span>      |
+| multinode3 | docker    | docker  | 192.153.67.2 | 8443 | v1.25.0 | Stopped |     3 |        |
+|------------|-----------|---------|--------------|------|---------|---------|-------|--------|
+</code></pre></div></div> </div> </article> </div> </div> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2026 Romulo B. P. Drumond. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script> <script src="/blog-v12-preview/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/blog-v12-preview/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/blog-v12-preview/assets/al_math/js/mathjax-setup.js"></script> <script src="/blog-v12-preview/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script> <script defer src="https://cdn.jsdelivr.net/npm/tocbot@4.36.4/dist/tocbot.min.js" integrity="sha256-lo/r+jQ81wWrxdIiiiEEd538z4+dTJTt+leOuAS7GCw=" crossorigin="anonymous"></script> <script src="/blog-v12-preview/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script> <script defer src="/blog-v12-preview/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script> <script defer src="/blog-v12-preview/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/blog-v12-preview/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/blog-v12-preview/assets/al_img_tools/js/zoom.js"></script> <script defer src="/blog-v12-preview/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/blog-v12-preview/assets/al_search/js/search/ninja-keys.min.js"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/blog-v12-preview/assets/al_search/js/search-setup.js"></script> <script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/blog-v12-preview/";
+    },
+  },{id: "nav-blog",
+          title: "blog",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog-v12-preview/blog/";
+          },
+        },{id: "nav-publications",
+          title: "publications",
+          description: "publications by categories in reversed chronological order. generated by jekyll-scholar.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog-v12-preview/publications/";
+          },
+        },{id: "nav-repositories",
+          title: "repositories",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog-v12-preview/repositories/";
+          },
+        },{id: "post-the-unspoken-ineffectiveness-of-ai-agents",
+        
+          title: "The Unspoken Ineffectiveness of AI Agents",
+        
+        description: "Wait, where&#39;s my UBS deposit??",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2025/ineffectiveness-of-ai-agents/";
+          
+        },
+      },{id: "post-escaping-dependency-hell-an-introduction-to-devcontainers",
+        
+          title: "Escaping Dependency Hell: An Introduction to Devcontainers",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2023/escaping-dependency-hell/";
+          
+        },
+      },{id: "post-navigating-the-web-with-python-insights-into-scraping-and-automation-tools",
+        
+          title: "Navigating the Web with Python: Insights into Scraping and Automation Tools",
+        
+        description: "Because manually browsing the web is so 1990s.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2023/navigating-the-web-with-python/";
+          
+        },
+      },{id: "post-finishing-my-data-career-masterplan",
+        
+          title: "Finishing my Data Career Masterplan",
+        
+        description: "Thoughts after being a D. Engineer, D. Scientist, and ML Engineer",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2023/finishing-my-data-career-masterplan/";
+          
+        },
+      },{id: "post-dealing-with-data-in-ml-projects-that-go-to-production",
+        
+          title: "Dealing with data in ML projects that go to Production",
+        
+        description: "Analysis of problems and tools at our disposal",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2022/dealing-with-data-in-ml-projects-that-go-to-production/";
+          
+        },
+      },{id: "post-fast-distributed-inference-with-deep-learning-models-on-spark",
+        
+          title: "Fast-distributed inference with Deep Learning models on Spark",
+        
+        description: "Learn how to efficiently distribute inference load on Spark",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2022/fast-distributed-inference-with-deep-learning-models-on-spark/";
+          
+        },
+      },{id: "post-using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl",
+        
+          title: "Using Lens to inspect a Kubernetes minikube cluster on WSL",
+        
+        description: "Learn how to use Lens to see K8s clusters on WSL",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2022/using-lens-to-inspect-a-kubernetes-minikube-cluster-on-wsl/";
+          
+        },
+      },{id: "post-setting-up-docker-on-wsl2",
+        
+          title: "Setting up Docker on WSL2",
+        
+        description: "Quick tutorial to ease up using Docker on WSL without Docker Desktop",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2022/setting-up-docker-on-wsl2/";
+          
+        },
+      },{id: "post-welcome-this-is-my-first-post",
+        
+          title: "Welcome! This is my first post",
+        
+        description: "Just a short welcome post",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog-v12-preview/blog/2022/welcome-post/";
+          
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%72%6F%6D%75%6C%6F.%62.%70.%64%72%75%6D%6F%6E%64@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/RomuloDrumond", "_blank");
+        },
+      },{
+        id: 'social-linkedin',
+        title: 'LinkedIn',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://www.linkedin.com/in/romulo-drumond", "_blank");
+        },
+      },{
+        id: 'social-x',
+        title: 'X',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://twitter.com/drumond_romulo", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script> <script src="/blog-v12-preview/assets/al_search/js/shortcut-key.js"></script> </body> </html>
